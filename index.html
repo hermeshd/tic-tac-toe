@@ -5,10 +5,54 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tic-Tac-Toe</title>
-    <script src="index.js" defer></script>
+    <script src="script.js" defer></script>
+    <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
+
+    <div class="entire-game">
+        <div class="gameboard">
+            <div class="cell" data-position="0,0"></div>
+            <div class="cell" data-position="0,1"></div>
+            <div class="cell" data-position="0,2"></div>
+            <div class="cell" data-position="1,0"></div>
+            <div class="cell" data-position="1,1"></div>
+            <div class="cell" data-position="1,2"></div>
+            <div class="cell" data-position="2,0"></div>
+            <div class="cell" data-position="2,1"></div>
+            <div class="cell" data-position="2,2"></div>
+        </div>
+        <div class="game-info">
+            <div class="selected-symbol">
+                <h2>Selected Symbol:</h2>
+                <div class="player-symbol">X</div>
+            </div>
+            <div class="symbol-selection">
+                <h2>Symbol Selection:</h2>
+                <button class="symbol-button">X</button>
+                <button class="symbol-button">O</button>
+            </div>
+            <div class="last-move">
+                <h2>Last Move (row, col):</h2>
+                <p class="last-move-text"></p>
+            </div>
+            <div class="game-parameters">
+                <h2>Game Parameters</h2>
+                <p class="parameter-title">Game Title: </p>
+                <p class="parameter-board-title"></p>
+                <p class="parameter-title">Board: </p>
+                <p class="parameter-print-board"></p>
+                <p class="parameter-title">Last Move Repeated?: </p>
+                <p class="parameter-is-repeated"></p>
+                <p class="parameter-title">Winner?: </p>
+                <p class="parameter-check-win"></p>
+                <p class="parameter-title">Board full?: </p>
+                <p class="parameter-is-board-full"></p>
+                <button class="parameter-reset-button">Reset</button>
+            </div>
+        </div>
+
 
 </body>
 
