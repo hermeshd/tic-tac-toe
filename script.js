@@ -7,6 +7,8 @@ function gameboard(boardTitle) {
 
     const getBoardTitle = () => boardTitle;
 
+    const getBoard = () => board;
+
     const printBoard = () => {
         boardPrint = "";
         board.forEach(row => { boardPrint += row.join(" | ") + "<br>" });
@@ -30,27 +32,27 @@ function gameboard(boardTitle) {
         // Check rows
         for (let i = 0; i < 3; i++) {
             if (board[i][0] === board[i][1] && board[i][0] === board[i][2] && board[i][0] !== " ") {
-                return board[i][0];
+                return i + ",0" + "-" + i + ",1" + "-" + i + ",2";
             }
         }
         // Check columns
         for (let i = 0; i < 3; i++) {
             if (board[0][i] === board[1][i] && board[0][i] === board[2][i] && board[0][i] !== " ") {
-                return board[0][i];
+                return "0," + i + "-" + "1," + i + "-" + "2," + i;
             }
         }
         // Check diagonals
         if (board[0][0] === board[1][1] && board[0][0] === board[2][2] && board[0][0] !== " ") {
-            return board[0][0];
+            return "0,0-1,1-2,2";
         }
         if (board[0][2] === board[1][1] && board[0][2] === board[2][0] && board[0][2] !== " ") {
-            return board[0][2];
+            return "0,2-1,1-2,0";
         }
         // No winner
         return null;
     };
 
-    return { printBoard, resetBoard, setBoard, isBoardFull, checkWin, getBoardTitle };
+    return { printBoard, resetBoard, setBoard, isBoardFull, checkWin, getBoardTitle, getBoard };
 }
 
 
@@ -69,11 +71,13 @@ function gameboard(boardTitle) {
 
 const board = gameboard("Hermes v CPU"); // Call the function to get the board object
 
+let playerSymbol = "x"; // Set "x" as the first turn
 
-const symbolButtons = document.querySelectorAll(".symbol-button");
+
 const gameBoard = document.querySelector(".gameboard");
 const gameInfo = document.querySelector(".game-info");
-const playerSymbol = document.querySelector(".player-symbol");
+
+
 const gameCells = gameBoard.querySelectorAll(".cell");
 const gameCellsIcon = gameBoard.querySelector(".play-icon");
 const lastMove = document.querySelector(".last-move");
@@ -86,17 +90,11 @@ const isLastMoveRepeated = document.querySelector(".parameter-is-repeated");
 const checkWin = document.querySelector(".parameter-check-win");
 const boardTitle = document.querySelector(".parameter-board-title");
 const printBoard = document.querySelector(".parameter-print-board");
+const currentTurn = document.querySelector(".current-turn");
 
-
-// Loop through each button and add an event listener
-symbolButtons.forEach(button => {
-    button.addEventListener("click", () => {
-        const selectedSymbol = button.textContent; // Get the text content of the clicked button
-        playerSymbol.textContent = selectedSymbol; // Update the player symbol display
-    });
-});
-
-
+currentTurn.innerHTML = `
+                            <object id="play-icon-turn" type="image/svg+xml" data="./resources/${playerSymbol}-icon-filled.svg" style="width: 25px;"></object>
+                            <h2>'s TURN</h2>`;
 
 // Function to insert and load the outline SVG
 function addHoverIcon(cell) {
@@ -104,7 +102,7 @@ function addHoverIcon(cell) {
         const objectElement = document.createElement("object");
         objectElement.classList.add("play-icon");
         objectElement.setAttribute("type", "image/svg+xml");
-        objectElement.setAttribute("data", `./resources/${playerSymbol.textContent.toLowerCase()}-icon-outline.svg`);
+        objectElement.setAttribute("data", `./resources/${playerSymbol}-icon-outline.svg`);
 
         cell.appendChild(objectElement);
 
@@ -117,10 +115,48 @@ function addHoverIcon(cell) {
                     svgElement.addEventListener("click", () => {
                         replaceWithFilledIcon(cell);
                         lastMoveText.textContent = cell.dataset.position; // Update the last move text
-                        board.setBoard(cell.dataset.position.split(",")[0], cell.dataset.position.split(",")[1], playerSymbol.textContent); // Update the game board
+                        board.setBoard(cell.dataset.position.split(",")[0], cell.dataset.position.split(",")[1], playerSymbol); // Update the game board
                         printBoard.innerHTML = board.printBoard();
                         checkWin.textContent = board.checkWin();
                         isBoardFull.textContent = board.isBoardFull();
+                        playerSymbol === "x" ? playerSymbol = "o" : playerSymbol = "x"; //Update player symbol after each turn
+                        currentTurn.innerHTML = `
+                            <object id="play-icon-turn" type="image/svg+xml" data="./resources/${playerSymbol}-icon-filled.svg" style="width: 25px;"></object>
+                            <h2>'s TURN</h2>`;
+
+                        //Actions for when there is a winner
+                        if (board.checkWin() !== null) {
+
+                            //Change background and icon color for the winning cells
+                            gameCells.forEach(cell => {
+                                if (board.checkWin().split("-").includes(cell.dataset.position)) {
+                                    cell.style.backgroundColor = "#edf2f4";
+
+                                    const svgObject = cell.firstChild;
+                                    setTimeout(() => {
+                                        const svgDoc = svgObject.getSVGDocument();
+                                        if (svgDoc) {
+                                            const winnerIcons = svgDoc.querySelector("path");
+                                            winnerIcons.style.fill = '#4CAF50';
+                                        }
+                                    }, 100); // Adjust the delay as needed
+
+                                }
+                            });
+
+                            //Announce winner
+                            currentTurn.innerHTML = `
+                                <object id="play-icon-turn" type="image/svg+xml" data="./resources/${board.getBoard()[board.checkWin().split("-")[0].split(",")[0]][board.checkWin().split("-")[0].split(",")[1]]}-icon-filled.svg" style="width: 25px;"></object>
+                                <h2 style="margin-left: 10px;">NAME wins!</h2>
+                            `;
+
+                            //Change color of winner's announcement icon
+                            document.getElementById('play-icon-turn').addEventListener('load', function () {
+                                const svgDoc = this.getSVGDocument();
+                                const path = svgDoc.querySelector('path');
+                                path.style.fill = '#4CAF50';
+                            });
+                        }
                     });
                 }
             }
@@ -130,7 +166,7 @@ function addHoverIcon(cell) {
 
 // Function to replace with the filled icon when clicked
 function replaceWithFilledIcon(cell) {
-    cell.innerHTML = `<object class="play-icon-selected" type="image/svg+xml" data="./resources/${playerSymbol.textContent.toLowerCase()}-icon-filled.svg"></object>`;
+    cell.innerHTML = `<object class="play-icon-selected" type="image/svg+xml" data="./resources/${playerSymbol}-icon-filled.svg"></object>`;
 }
 
 // Add event listeners for hover effect
@@ -143,25 +179,13 @@ gameCells.forEach(cell => {
             cell.removeChild(icon);
         }
     });
+
+    if (board.checkWin() !== null) {
+        if (board.checkWin().split("-").includes(cell.dataset.position)) {
+            cell.style.backgroundColor = "green";
+        }
+    }
 });
-
-
-
-
-
-
-// if (cell.textContent !== "") {
-//     isLastMoveRepeated.textContent = "true";
-// } else {
-//     isLastMoveRepeated.textContent = "false";
-// }
-
-// lastMoveText.textContent = cell.dataset.position; // Update the last move text
-// board.setBoard(cell.dataset.position.split(",")[0], cell.dataset.position.split(",")[1], playerSymbol.textContent); // Update the game board
-// printBoard.innerHTML = board.printBoard();
-// checkWin.textContent = board.checkWin();
-// isBoardFull.textContent = board.isBoardFull();
-// cell.style.cursor = "default";
 
 
 //Reset everything when reset button is clicked
@@ -170,10 +194,15 @@ resetButton.addEventListener("click", () => {
     printBoard.innerHTML = board.printBoard();
     gameCells.forEach(cell => {
         cell.textContent = "";
+        cell.style.backgroundColor = "#2b2d42";
     })
     checkWin.textContent = board.checkWin();
     lastMoveText.textContent = "";
     isLastMoveRepeated.textContent = "false";
+    playerSymbol = "x";
+    currentTurn.innerHTML = `
+                            <object id="play-icon-turn" type="image/svg+xml" data="./resources/${playerSymbol}-icon-filled.svg" style="width: 25px;"></object>
+                            <h2>'s TURN</h2>`;
 });
 
 
