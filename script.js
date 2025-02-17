@@ -25,6 +25,7 @@ function gameboard(boardTitle) {
 
     // Checkers
     const isBoardFull = () => board.every(row => row.every(cell => cell !== " "));
+
     const checkWin = () => {
         // Check rows
         for (let i = 0; i < 3; i++) {
@@ -106,9 +107,9 @@ gameCells.forEach(cell => {
             isLastMoveRepeated.textContent = "false";
         }
 
-        cell.textContent = playerSymbol.textContent;
-        lastMoveText.textContent = cell.dataset.position;
-        board.setBoard(cell.dataset.position.split(",")[0], cell.dataset.position.split(",")[1], playerSymbol.textContent);
+        cell.textContent = playerSymbol.textContent; //Set the text content of the clicked cell to the selected symbol
+        lastMoveText.textContent = cell.dataset.position; // Update the last move text
+        board.setBoard(cell.dataset.position.split(",")[0], cell.dataset.position.split(",")[1], playerSymbol.textContent); // Update the game board
         printBoard.innerHTML = board.printBoard();
         checkWin.textContent = board.checkWin();
         isBoardFull.textContent = board.isBoardFull();
@@ -116,6 +117,7 @@ gameCells.forEach(cell => {
 
 });
 
+//Reset everything when reset button is clicked
 resetButton.addEventListener("click", () => {
     board.resetBoard();
     printBoard.innerHTML = board.printBoard();
@@ -128,4 +130,46 @@ resetButton.addEventListener("click", () => {
 });
 
 
+//Change header icon's color
 
+// --white-color: #edf2f4;
+// --light-red: #ef233c;
+
+// Wait for the SVG to load
+document.getElementById('header-icon').addEventListener('load', function () {
+    // Access the SVG's internal document
+    const svgDoc = this.getSVGDocument();
+
+    // Select the element(s) you want to modify
+    const xColor = svgDoc.querySelector('.x-color');
+    const oColor = svgDoc.querySelectorAll('.o-color');
+    const dividerColor = svgDoc.querySelector('.divider-color');
+
+    // Change the fill color of all o-color elements
+    oColor.forEach(o => {
+        o.style.fill = '#edf2f4';
+    });
+
+    // Change the fill color of the x-color element
+    xColor.style.fill = '#ef233c';
+
+    // Change the fill color of the divider-color element
+    dividerColor.style.fill = '#2b2d42';
+});
+
+
+//Change footer icon's color
+
+// Wait for the SVG to load
+document.getElementById('footer-icon').addEventListener('load', function () {
+    // Access the SVG's internal document
+    const svgDoc = this.getSVGDocument();
+
+    // Select the element(s) you want to modify
+    const paths = svgDoc.querySelectorAll('path');
+
+    // Change the fill color of all <path> elements
+    paths.forEach(path => {
+        path.style.fill = 'red';
+    });
+});
