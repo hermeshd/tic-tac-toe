@@ -75,11 +75,12 @@ const gameBoard = document.querySelector(".gameboard");
 const gameInfo = document.querySelector(".game-info");
 const playerSymbol = document.querySelector(".player-symbol");
 const gameCells = gameBoard.querySelectorAll(".cell");
+const gameCellsIcon = gameBoard.querySelector(".play-icon");
 const lastMove = document.querySelector(".last-move");
 const lastMoveText = document.querySelector(".last-move-text");
 const gameResult = document.querySelector(".game-result");
 
-const resetButton = document.querySelector(".parameter-reset-button");
+const resetButton = document.querySelector(".reset-button");
 const isBoardFull = document.querySelector(".parameter-is-board-full");
 const isLastMoveRepeated = document.querySelector(".parameter-is-repeated");
 const checkWin = document.querySelector(".parameter-check-win");
@@ -96,26 +97,72 @@ symbolButtons.forEach(button => {
 });
 
 
-// Loop through each game cell and add an event listener
+
+// Function to insert and load the outline SVG
+function addHoverIcon(cell) {
+    if (!cell.querySelector(".play-icon") && !cell.querySelector(".play-icon-selected")) { // Prevent duplicate icons
+        const objectElement = document.createElement("object");
+        objectElement.classList.add("play-icon");
+        objectElement.setAttribute("type", "image/svg+xml");
+        objectElement.setAttribute("data", `./resources/${playerSymbol.textContent.toLowerCase()}-icon-outline.svg`);
+
+        cell.appendChild(objectElement);
+
+        // Wait for the object to load before adding the event listener
+        objectElement.addEventListener("load", () => {
+            const svgDoc = objectElement.contentDocument;
+            if (svgDoc) {
+                const svgElement = svgDoc.querySelector("svg");
+                if (svgElement) {
+                    svgElement.addEventListener("click", () => {
+                        replaceWithFilledIcon(cell);
+                        lastMoveText.textContent = cell.dataset.position; // Update the last move text
+                        board.setBoard(cell.dataset.position.split(",")[0], cell.dataset.position.split(",")[1], playerSymbol.textContent); // Update the game board
+                        printBoard.innerHTML = board.printBoard();
+                        checkWin.textContent = board.checkWin();
+                        isBoardFull.textContent = board.isBoardFull();
+                    });
+                }
+            }
+        });
+    }
+}
+
+// Function to replace with the filled icon when clicked
+function replaceWithFilledIcon(cell) {
+    cell.innerHTML = `<object class="play-icon-selected" type="image/svg+xml" data="./resources/${playerSymbol.textContent.toLowerCase()}-icon-filled.svg"></object>`;
+}
+
+// Add event listeners for hover effect
 gameCells.forEach(cell => {
+    cell.addEventListener("mouseenter", () => addHoverIcon(cell));
 
-    cell.addEventListener("click", () => {
-
-        if (cell.textContent !== "") {
-            isLastMoveRepeated.textContent = "true";
-        } else {
-            isLastMoveRepeated.textContent = "false";
+    cell.addEventListener("mouseleave", () => {
+        const icon = cell.querySelector(".play-icon");
+        if (icon) {
+            cell.removeChild(icon);
         }
-
-        cell.textContent = playerSymbol.textContent; //Set the text content of the clicked cell to the selected symbol
-        lastMoveText.textContent = cell.dataset.position; // Update the last move text
-        board.setBoard(cell.dataset.position.split(",")[0], cell.dataset.position.split(",")[1], playerSymbol.textContent); // Update the game board
-        printBoard.innerHTML = board.printBoard();
-        checkWin.textContent = board.checkWin();
-        isBoardFull.textContent = board.isBoardFull();
-    }); // Set the text content of the clicked cell to the selected symbol
-
+    });
 });
+
+
+
+
+
+
+// if (cell.textContent !== "") {
+//     isLastMoveRepeated.textContent = "true";
+// } else {
+//     isLastMoveRepeated.textContent = "false";
+// }
+
+// lastMoveText.textContent = cell.dataset.position; // Update the last move text
+// board.setBoard(cell.dataset.position.split(",")[0], cell.dataset.position.split(",")[1], playerSymbol.textContent); // Update the game board
+// printBoard.innerHTML = board.printBoard();
+// checkWin.textContent = board.checkWin();
+// isBoardFull.textContent = board.isBoardFull();
+// cell.style.cursor = "default";
+
 
 //Reset everything when reset button is clicked
 resetButton.addEventListener("click", () => {

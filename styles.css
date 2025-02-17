@@ -90,23 +90,39 @@ h6 {
 
 .gameboard {
     display: grid;
-    grid-template-columns: repeat(3, 100px);
-    grid-template-rows: repeat(3, 100px);
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
     gap: 10px;
-    border: 1px solid blue;
-    padding: 10px;
-    background-color: #f0f0f0;
+    background-color: transparent;
+    width: 500px;
+    margin: auto;
+    height: 534px;
+
 }
 
 .cell {
-    border: 1px solid #ccc;
-    display: flex;
-    justify-content: center;
+    border-radius: 12px;
+    display: grid;
+    justify-items: center;
     align-items: center;
-    font-size: 24px;
-    cursor: pointer;
-    background-color: #fff;
-    color: black;
+    background-color: var(--black-color);
+    padding: 0;
+    box-shadow: rgba(0, 0, 0, 0.19) 0px 10px 20px, rgba(0, 0, 0, 0.23) 0px 6px 6px;
+    transition: all 0.15s ease-in-out;
+}
+
+.play-icon {
+    width: 100%;
+    padding: 10px 10px;
+    margin: 0;
+    /* border: 1px solid red; */
+}
+
+.play-icon-selected {
+    width: 100%;
+    padding: 10px 10px;
+    margin: 0;
+    /* border: 1px solid red; */
 }
 
 h2 {
