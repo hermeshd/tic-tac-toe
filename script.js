@@ -104,22 +104,32 @@ function addHoverIcon(cell) {
         objectElement.setAttribute("type", "image/svg+xml");
         objectElement.setAttribute("data", `./resources/${playerSymbol}-icon-outline.svg`);
 
+
         cell.appendChild(objectElement);
 
         // Wait for the object to load before adding the event listener
         objectElement.addEventListener("load", () => {
+
             const svgDoc = objectElement.contentDocument;
             if (svgDoc) {
                 const svgElement = svgDoc.querySelector("svg");
                 if (svgElement) {
                     svgElement.addEventListener("click", () => {
+
+                        //Replace the icon with the filled icon
                         replaceWithFilledIcon(cell);
-                        lastMoveText.textContent = cell.dataset.position; // Update the last move text
+
+                        //Update gameboard backend
                         board.setBoard(cell.dataset.position.split(",")[0], cell.dataset.position.split(",")[1], playerSymbol); // Update the game board
-                        printBoard.innerHTML = board.printBoard();
-                        checkWin.textContent = board.checkWin();
-                        isBoardFull.textContent = board.isBoardFull();
+
+                        //Check win and check if board is full
+                        board.checkWin();
+                        board.isBoardFull();
+
+                        //Update player symbol after each turn
                         playerSymbol === "x" ? playerSymbol = "o" : playerSymbol = "x"; //Update player symbol after each turn
+
+                        //Update current turn text
                         currentTurn.innerHTML = `
                             <object id="play-icon-turn" type="image/svg+xml" data="./resources/${playerSymbol}-icon-filled.svg" style="width: 25px;"></object>
                             <h2>'s TURN</h2>`;
@@ -129,6 +139,7 @@ function addHoverIcon(cell) {
 
                             //Change background and icon color for the winning cells
                             gameCells.forEach(cell => {
+
                                 if (board.checkWin().split("-").includes(cell.dataset.position)) {
                                     cell.style.backgroundColor = "#edf2f4";
 
@@ -141,7 +152,21 @@ function addHoverIcon(cell) {
                                         }
                                     }, 100); // Adjust the delay as needed
 
+                                } else { //Change background and icon color for the losing cells
+                                    cell.style.backgroundColor = "#999";
+
+                                    const svgObject = cell.firstChild;
+                                    setTimeout(() => {
+                                        const svgDoc = svgObject.getSVGDocument();
+                                        if (svgDoc) {
+                                            const winnerIcons = svgDoc.querySelector("path");
+                                            winnerIcons.style.fill = '#333';
+                                        }
+                                    }, 100); // Adjust the delay as needed
+
+                                    removeAllEventListeners(cell);
                                 }
+
                             });
 
                             //Announce winner
@@ -169,6 +194,11 @@ function replaceWithFilledIcon(cell) {
     cell.innerHTML = `<object class="play-icon-selected" type="image/svg+xml" data="./resources/${playerSymbol}-icon-filled.svg"></object>`;
 }
 
+function removeAllEventListeners(cell) {
+    const newCell = cell.cloneNode(true); // Clone the cell without event listeners
+    cell.parentNode.replaceChild(newCell, cell); // Replace the original cell
+}
+
 // Add event listeners for hover effect
 gameCells.forEach(cell => {
     cell.addEventListener("mouseenter", () => addHoverIcon(cell));
@@ -190,7 +220,9 @@ gameCells.forEach(cell => {
 
 //Reset everything when reset button is clicked
 resetButton.addEventListener("click", () => {
-    board.resetBoard();
+    board.resetBoard(); //Reset values in backend
+
+    //Reset values in frontend
     printBoard.innerHTML = board.printBoard();
     gameCells.forEach(cell => {
         cell.textContent = "";
